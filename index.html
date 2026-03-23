@@ -14,30 +14,33 @@
     <ul id="list"></ul>
 
     <script>
-      const API = "http://EC2-PUBLIC-IP:3000"
+      const API = "http://13.235.241.27:3000";
 
       function addUser() {
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
+
         fetch(API + "/add-user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: name.value,
-            email: email.value,
+            name: nameInput.value,
+            email: emailInput.value,
           }),
         })
           .then((res) => res.json())
-          .then((data) => alert(data.message))
+          .then((data) => alert(data.message));
       }
 
       function loadUsers() {
         fetch(API + "/users")
           .then((res) => res.json())
           .then((data) => {
-            list.innerHTML = ""
+            list.innerHTML = "";
             data.forEach((u) => {
-              list.innerHTML += `<li>${u.name} - ${u.email}</li>`
-            })
-          })
+              list.innerHTML += `<li>${u.name} - ${u.email}</li>`;
+            });
+          });
       }
     </script>
   </body>

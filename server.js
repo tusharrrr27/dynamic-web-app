@@ -1,46 +1,56 @@
-const express = require("express")
-const mysql = require("mysql2")
-const cors = require("cors")
+const mongoose = require("mongoose");
+const cors = require("cors");
+const path = require("path");
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+// 🔹  MongoDB Connection
+const MONGO_URI =
+  "mongodb+srv://surya01:surya123@cluster0.ttizluy.mongodb.net/testdb?retryWrites=true&w=majority";
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// 🔹 RDS Connection
-const db = mysql.createConnection({
-  host: "RDS-ENDPOINT-HERE",
-  user: "admin",
-  password: "YOUR_PASSWORD",
-  database: "testdb",
-})
+// 🔹  Schema (same as your users table)
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+});
 
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err)
-    return
+const User = mongoose.model("User", userSchema);
+
+app.post("/add-user", async (req, res) => {
+  try {
+    const { name, email } = req.body;
+    console.log(name, email);
+    const newUser = new User({ name, email });
+    await newUser.save();
+
+    res.send({ message: "User added successfully" });
+  } catch (err) {
+    res.status(500).send(err);
   }
-  console.log("Connected to RDS MySQL")
-})
+});
 
-// 🔹 API: Add user
-app.post("/add-user", (req, res) => {
-  const { name, email } = req.body
-
-  const sql = "INSERT INTO users (name, email) VALUES (?, ?)"
-  db.query(sql, [name, email], (err, result) => {
-    if (err) return res.status(500).send(err)
-    res.send({ message: "User added successfully" })
-  })
-})
-
-// 🔹 API: Get users
-app.get("/users", (req, res) => {
-  db.query("SELECT * FROM users", (err, results) => {
-    if (err) return res.status(500).send(err)
-    res.send(results)
-  })
-})
+// 🔹  API: Get users (same logic)
+app.get("/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.send(users);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "/", "index.html"));
+});
 
 app.listen(3000, () => {
-  console.log("Server running on port 3000")
-})
+  console.log("Server running on port 3000");
+});

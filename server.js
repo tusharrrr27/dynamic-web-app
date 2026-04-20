@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 // 🔹  MongoDB Connection
 const MONGO_URI =
-  "mongodb+srv://surya01:surya123@cluster0.ttizluy.mongodb.net/testdb?retryWrites=true&w=majority";
+  "mongodb+srv://vkm2735:<OpenMongoDB123>@cluster0.9gfnm.mongodb.net/?appName=Cluster0";
 
 mongoose
   .connect(MONGO_URI, {
